@@ -1,0 +1,69 @@
+{
+  "name": "russraria",
+  "version": "0.1.0",
+  "description": "Desktop executable build for Russraria",
+  "main": "main.js",
+  "author": "OpenAI Codex",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "electron .",
+    "build:icon": "node scripts/build-win-icon.js",
+    "build:dir": "npm.cmd run build:icon && electron-builder --dir && node scripts/patch-win-icons.js",
+    "build:portable": "npm.cmd run build:icon && electron-builder --win portable && node scripts/patch-win-icons.js"
+  },
+  "build": {
+    "appId": "com.russraria.desktop",
+    "productName": "Russraria",
+    "icon": "build/icon.ico",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "styles.css",
+      "game.js",
+      "Cursor.png",
+      "GameNameLogotype.png",
+      "build/icon.png",
+      "build/icon.ico",
+      "RU_iconForExe.png",
+      "assets/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "build/icon.png",
+        "to": "build/icon.png"
+      },
+      {
+        "from": "build/icon.ico",
+        "to": "build/icon.ico"
+      },
+      {
+        "from": "RU_iconForExe.png",
+        "to": "RU_iconForExe.png"
+      }
+    ],
+    "portable": {
+      "unpackDirName": false
+    },
+    "win": {
+      "icon": "build/icon.ico",
+      "signAndEditExecutable": false,
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    }
+  },
+  "devDependencies": {
+    "electron": "^41.0.3",
+    "electron-builder": "^26.8.1"
+  }
+}

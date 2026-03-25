@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Russraria</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div id="boot-overlay" aria-live="polite">
+    <div class="boot-card">
+      <h1>Russraria</h1>
+      <p id="boot-status">Запуск игры...</p>
+    </div>
+  </div>
+  <div id="main-menu" class="hidden" aria-label="Main menu" data-theme="sky">
+    <div class="menu-theme-backdrop" aria-hidden="true">
+      <div class="menu-theme-stars"></div>
+      <div class="menu-theme-blackhole-glow"></div>
+      <img class="menu-theme-blackhole-image" src="./assets/ui/BlackHole.png" alt="">
+    </div>
+    <div class="menu-panel">
+      <img id="menu-logo" src="./GameNameLogotype.png" alt="Russraria">
+      <div id="menu-logo-fallback">Russraria</div>
+      <div class="menu-buttons">
+        <button type="button" class="menu-button" data-menu-action="play">Play</button>
+        <button type="button" class="menu-button" data-menu-action="settings">Settings</button>
+        <button type="button" class="menu-button" data-menu-action="exit">Exit</button>
+      </div>
+      <button type="button" class="menu-theme-button" data-menu-action="theme">Switch theme</button>
+    </div>
+  </div>
+  <canvas id="game" width="1280" height="720" aria-label="Игровое поле Russraria"></canvas>
+  <script>
+    (function initWindowTitle() {
+      const titleVariants = [
+        { text: "Russraria", weight: 24 },
+        { text: "Russraria: Top quality!", weight: 18 },
+        { text: "Russraria: made in USA", weight: 18 },
+        { text: "Кгыыкфкшф", weight: 1 },
+        { text: "Russraria: Where's my walls?", weight: 16 },
+        { text: "Terrusia", weight: 4 },
+      ];
+      const totalWeight = titleVariants.reduce((sum, entry) => sum + entry.weight, 0);
+      let roll = Math.random() * totalWeight;
+      let selectedTitle = titleVariants[0].text;
+
+      for (const entry of titleVariants) {
+        roll -= entry.weight;
+        if (roll <= 0) {
+          selectedTitle = entry.text;
+          break;
+        }
+      }
+
+      document.title = selectedTitle;
+    })();
+
+    (function initBootOverlay() {
+      const overlay = document.getElementById("boot-overlay");
+      const status = document.getElementById("boot-status");
+      window.__bootOverlay = {
+        setStatus(text) {
+          if (status) {
+            status.textContent = text;
+          }
+        },
+        fail(text) {
+          if (overlay) {
+            overlay.dataset.state = "error";
+          }
+          if (status) {
+            status.textContent = text;
+          }
+        },
+        hide() {
+          if (overlay) {
+            overlay.classList.add("hidden");
+          }
+        },
+      };
+
+      window.addEventListener("error", (event) => {
+        window.__bootOverlay?.fail(`Ошибка запуска: ${event.message}`);
+      });
+      window.addEventListener("unhandledrejection", (event) => {
+        window.__bootOverlay?.fail(`Ошибка запуска: ${String(event.reason)}`);
+      });
+    })();
+
+    (function initMainMenu() {
+      const menu = document.getElementById("main-menu");
+      const logo = document.getElementById("menu-logo");
+      const fallback = document.getElementById("menu-logo-fallback");
+      const menuButtons = Array.from(document.querySelectorAll("[data-menu-action]"));
+
+      function setMenuFocusability(enabled) {
+        for (const button of menuButtons) {
+          button.tabIndex = enabled ? 0 : -1;
+          if (button instanceof HTMLButtonElement) {
+            button.disabled = !enabled;
+          }
+        }
+      }
+
+      if (logo) {
+        logo.addEventListener("error", () => {
+          logo.classList.add("hidden");
+          fallback?.classList.add("visible");
+        }, { once: true });
+        logo.addEventListener("load", () => {
+          fallback?.classList.remove("visible");
+        }, { once: true });
+      }
+
+      window.__mainMenu = {
+        show() {
+          menu?.classList.remove("hidden");
+          setMenuFocusability(true);
+        },
+        hide() {
+          document.activeElement?.blur?.();
+          menu?.classList.add("hidden");
+          setMenuFocusability(false);
+        },
+        setStatus() {},
+        isVisible() {
+          return !!menu && !menu.classList.contains("hidden");
+        },
+        toggleTheme() {
+          if (!menu) {
+            return "sky";
+          }
+          const nextTheme = menu.dataset.theme === "space" ? "sky" : "space";
+          menu.dataset.theme = nextTheme;
+          return nextTheme;
+        },
+      };
+
+      setMenuFocusability(false);
+    })();
+  </script>
+  <script src="./game.js"></script>
+</body>
+</html>

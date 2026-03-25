@@ -1,0 +1,9 @@
+node_modules/
+.npm-cache/
+dist/
+build/
+_tmp_asar/
+
+*.log
+Thumbs.db
+.DS_Store
